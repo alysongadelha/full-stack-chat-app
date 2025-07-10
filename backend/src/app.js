@@ -1,8 +1,10 @@
+import { createServer } from 'node:http'
 import express from 'express'
-import { postsRoutes } from './routes/posts.js'
-import { userRoutes } from './routes/users.js'
 import bodyParser from 'body-parser'
 import cors from 'cors'
+import { Server } from 'socket.io'
+import { postsRoutes } from './routes/posts.js'
+import { userRoutes } from './routes/users.js'
 
 const app = express()
 app.use(cors())
@@ -14,4 +16,20 @@ app.get('/', (req, res) => {
   res.send('Hello from express')
 })
 
-export { app }
+const server = createServer(app)
+
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+  },
+})
+
+io.on('connection', (socket) => {
+  console.log('user connected: ', socket.id)
+
+  socket.on('disconnect', () => {
+    console.log('user disconnected: ', socket.id)
+  })
+})
+
+export { server as app }
