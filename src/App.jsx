@@ -26,6 +26,9 @@ const router = createBrowserRouter([
 
 const socket = io(import.meta.env.VITE_SOCKET_HOST, {
   query: window.location.search.substring(1),
+  auth: {
+    token: window.localStorage.getItem('token'),
+  },
 })
 
 socket.on('connect', async () => {

@@ -1,4 +1,27 @@
+import jwt from 'jsonwebtoken'
+import { getUserInfoById } from './services/users.js'
+
 export const handleSocket = (io) => {
+  io.use((socket, next) => {
+    if (!socket.handshake.auth?.token) {
+      return next(new Error('Authentication failed: no token provided'))
+    }
+
+    jwt.verify(
+      socket.handshake.auth.token,
+      process.env.JWT_SECRET,
+      async (error, decodedToken) => {
+        if (error) {
+          return next(new Error('Authentication failed: invalid token'))
+        }
+
+        socket.auth = decodedToken
+        socket.user = await getUserInfoById(socket.auth.sub)
+        return next()
+      },
+    )
+  })
+
   io.on('connection', (socket) => {
     console.log('user connected: ', socket.id)
     const room = socket.handshake.query?.room ?? 'public'
@@ -13,7 +36,7 @@ export const handleSocket = (io) => {
     socket.on('chat.message', (message) => {
       console.log(`${socket.id}: ${message}`)
       io.to(room).emit('chat.message', {
-        username: socket.id,
+        username: socket.user.username,
         message,
       })
     })
@@ -26,6 +49,7 @@ export const handleSocket = (io) => {
       const userInfo = {
         socketId,
         rooms: Array.from(socket.rooms),
+        user: socket.user,
       }
 
       return callback(userInfo)
