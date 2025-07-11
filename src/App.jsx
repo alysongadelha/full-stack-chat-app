@@ -24,14 +24,23 @@ const router = createBrowserRouter([
   },
 ])
 
-const socket = io(import.meta.env.VITE_SOCKET_HOST)
+const socket = io(import.meta.env.VITE_SOCKET_HOST, {
+  query: window.location.search.substring(1),
+})
 
-socket.on('connect', () => {
+socket.on('connect', async () => {
   console.log('connected to socket.io as ', socket.io)
+  socket.emit('chat.message', 'hello from client')
+  const userInfo = await socket.emitWithAck('user.info', socket.id)
+  console.log('user info', userInfo)
 })
 
 socket.on('connect_error', (error) => {
   console.error('socket.io connect error: ', error)
+})
+
+socket.on('chat.message', (msg) => {
+  console.log(`${msg.username}: ${msg.message}`)
 })
 
 export const App = () => {

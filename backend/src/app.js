@@ -5,6 +5,7 @@ import cors from 'cors'
 import { Server } from 'socket.io'
 import { postsRoutes } from './routes/posts.js'
 import { userRoutes } from './routes/users.js'
+import { handleSocket } from './socket.js'
 
 const app = express()
 app.use(cors())
@@ -23,13 +24,6 @@ const io = new Server(server, {
     origin: '*',
   },
 })
-
-io.on('connection', (socket) => {
-  console.log('user connected: ', socket.id)
-
-  socket.on('disconnect', () => {
-    console.log('user disconnected: ', socket.id)
-  })
-})
+handleSocket(io)
 
 export { server as app }
