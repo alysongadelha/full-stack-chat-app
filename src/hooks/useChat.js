@@ -15,8 +15,30 @@ export const useChat = () => {
     return () => socket.off('chat.message', receiveMessage)
   }, [])
 
-  const sendMessage = (message) => {
-    socket.emit('chat.message', message)
+  const sendMessage = async (message) => {
+    if (message.startsWith('./')) {
+      const command = message.substring(1)
+      switch (command) {
+        case 'clear':
+          setMessages([])
+          break
+        case 'rooms': {
+          const userInfo = await socket.emitWithAck('user.info', socket.id)
+          const rooms = userInfo.rooms.filter((room) => room !== socket.id)
+          receiveMessage({
+            message: `You are in: ${rooms.join(', ')}`,
+          })
+          break
+        }
+        default:
+          receiveMessage({
+            message: `Unknown command: ${command}`,
+          })
+          break
+      }
+    } else {
+      socket.emit('chat.mesßsage', message)
+    }
   }
 
   return { messages, sendMessage }
