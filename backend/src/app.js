@@ -1,7 +1,7 @@
 import { createServer } from 'node:http'
-import express from 'express'
 import bodyParser from 'body-parser'
 import cors from 'cors'
+import express from 'express'
 import { Server } from 'socket.io'
 import { userRoutes } from './routes/users.js'
 import { handleSocket } from './socket.js'
@@ -11,6 +11,7 @@ app.use(cors())
 app.use(bodyParser.json())
 userRoutes(app)
 
+// biome-ignore lint/correctness/noUnusedFunctionParameters: test file
 app.get('/', (req, res) => {
   res.send('Hello from express')
 })

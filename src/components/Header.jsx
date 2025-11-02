@@ -1,8 +1,8 @@
-import { Link } from 'react-router-dom'
 import { jwtDecode } from 'jwt-decode'
+import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext.jsx'
-import { User } from './User.jsx'
 import { useSocket } from '../contexts/SocketIOContext.jsx'
+import { User } from './User.jsx'
 
 export const Header = () => {
   const [token, setToken] = useAuth()
@@ -20,7 +20,7 @@ export const Header = () => {
       <div>
         Logged in as <User id={sub} />
         <br />
-        <button onClick={handleLogout}>Logout</button>
+        <button type='button' onClick={handleLogout}>Logout</button>
       </div>
     )
   }
